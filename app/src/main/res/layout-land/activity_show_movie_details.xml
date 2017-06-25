@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark">
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline_v"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintGuide_percent="0.4"
+            android:orientation="vertical"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:id="@+id/s_msgview_2"
+            android:visibility="gone"
+            android:textColor="@color/colorBlack"
+            android:background="@color/colorWhite"
+            app:layout_constraintTop_toBottomOf="parent"
+            android:textStyle="bold"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:id="@+id/s_title"
+            android:padding="@dimen/standard_padding"
+            android:textColor="#FFFFFF"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:layout_constraintTop_toBottomOf="@id/s_msgview_2"/>
+        <ImageView
+            android:id="@+id/s_poster"
+            android:adjustViewBounds="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/standard_padding"
+            app:layout_constraintRight_toLeftOf="@id/guideline_v"
+            app:layout_constraintTop_toBottomOf="@id/s_title"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/s_release_date"
+            android:padding="@dimen/standard_padding"
+            android:textColor="@color/colorWhite"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toRightOf="@id/guideline_v"
+            app:layout_constraintTop_toBottomOf="@id/s_title"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/s_rating"
+            android:padding="@dimen/standard_padding"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toRightOf="@id/guideline_v"
+            app:layout_constraintTop_toBottomOf="@id/s_release_date"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/standard_padding"
+            android:id="@+id/b_favourite"
+            android:onClick="setFavouriteField"
+            android:background="@android:color/holo_orange_light"
+            app:layout_constraintLeft_toRightOf="@id/guideline_v"
+            app:layout_constraintTop_toBottomOf="@id/s_rating"
+            android:text="@string/mark_favourite" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_star"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/s_rating"
+            app:layout_constraintLeft_toRightOf="@id/b_favourite"
+            android:src="@mipmap/ic_favourite"/>
+        <TextView
+            android:layout_width="@dimen/synopsis_size"
+            android:layout_height="wrap_content"
+            android:id="@+id/s_synopsis"
+            android:padding="@dimen/standard_padding"
+            android:layout_marginRight="@dimen/extra_right_margin"
+            android:textColor="#FFFFFF"
+            android:textStyle="normal"
+            app:layout_constraintLeft_toRightOf="@id/guideline_v"
+            app:layout_constraintTop_toBottomOf="@id/b_favourite"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:visibility="invisible"
+            android:id="@+id/separator_h"
+            app:layout_constraintTop_toBottomOf="@id/s_poster" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/standard_padding"
+            android:id="@+id/s_reviews"
+            android:textColor="@color/colorWhite"
+            android:text="No Reviews available"
+            app:layout_constraintTop_toBottomOf="@id/separator_h"
+            android:textStyle="bold"/>
+        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/lv_reviews"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/standard_padding"
+            app:layout_constraintTop_toBottomOf="@id/s_reviews"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/standard_padding"
+            android:id="@+id/s_trailers"
+            android:textColor="@color/colorWhite"
+            android:text="No Trailers available"
+            app:layout_constraintTop_toBottomOf="@id/separator_h"
+            app:layout_constraintLeft_toRightOf="@id/guideline_v"
+            android:textStyle="bold"/>
+
+
+        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/lv_trailers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/standard_padding"
+            app:layout_constraintTop_toBottomOf="@id/s_trailers"
+            app:layout_constraintLeft_toRightOf="@id/guideline_v"/>
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

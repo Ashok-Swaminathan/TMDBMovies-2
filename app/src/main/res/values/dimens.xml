@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="standard_padding">10dp</dimen>
+    <dimen name="extra_right_margin">120dp</dimen>
+    <dimen name="synopsis_size">360dp</dimen>
+    <dimen name="poster_size">300dp</dimen>
+    <dimen name="tablet_right_margin_landscape">220dp</dimen>
+    <dimen name="tablet_right_margin">180dp</dimen>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorLLBack">#EFE5F9</color>
+    <color name="colorVBBack">#FFD4B1</color>
+    <color name="colorVBText">#D41C1C</color>
+    <color name="colorRBBack">#B0E0E6</color>
+    <color name="colorRBText">#5151CC</color>
+</resources>
