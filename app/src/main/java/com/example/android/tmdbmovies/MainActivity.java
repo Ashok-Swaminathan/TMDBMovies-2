@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
@@ -17,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -24,14 +27,22 @@ import com.example.android.tmdbmovies.data.CommonData;
 import com.example.android.tmdbmovies.db.MovieContract;
 import com.example.android.tmdbmovies.db.MovieDbHelper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.net.URL;
 import java.util.ArrayList;
 
+import static android.graphics.BitmapFactory.decodeFile;
 
 
 public class MainActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    boolean TEST_OFFLINE = false;
+
+    boolean LOCAL_DIRS_READY;
 
     String THUMBNAIL_URL_BASE;
 
@@ -71,7 +82,7 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
      * Movie details layout contains title, release date, movie poster, vote average, and plot synopsis.
      */
 
-    boolean loadinginProcess = false;
+
     ProgressBar pb;
 
     TNAdapter adapter;
@@ -83,12 +94,15 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        msgView = (TextView) findViewById(R.id.msg_view);
+       CommonData.setCommonData(this);
 
-        CommonData.setCommonData(this);
+        CommonData.setOnline(!TEST_OFFLINE);
+        LOCAL_DIRS_READY = CommonData.isDirReady();
 
         API_KEY = getResources().getString(R.string.string_api_key);
         DB_URL_BASE = getResources().getString(R.string.db_url_base);
-        THUMBNAIL_URL_BASE = getResources().getString(R.string.thumbnail_url_base) + "w" + CommonData.thumbNailSelect + "/";
+        THUMBNAIL_URL_BASE = getResources().getString(R.string.thumbnail_url_base) + "w" + CommonData.thumbNailSelect;
 
         sortBy[0] = getResources().getString(R.string.string_popular);
         sortBy[1] = getResources().getString(R.string.string_top_rated);
@@ -96,10 +110,11 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
 
         movieDbHelper = new MovieDbHelper(this);
 
-        movieData = new MovieData((Context) this);
-        TNUnits = new ArrayList<TNUnit>();
-        msgView = (TextView) findViewById(R.id.msg_view);
+        movieData = new MovieData(this);
+        TNUnits = new ArrayList<>();
+
         api_key = getResources().getString(R.string.api_key);
+
 
         try {
             getSupportLoaderManager().initLoader(ID_MOVIE_LOADER_KEY, null, this);
@@ -121,7 +136,8 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
             setMsgText();
         }
         else
-            loadData();
+             loadData();
+
     }
     @Override
     public void onSaveInstanceState (Bundle outState) {
@@ -135,16 +151,16 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
             outState.putStringArray(MovieContract.MovieEntry.COLUMN_RATING,movieData.rating);
             outState.putStringArray(MovieContract.MovieEntry.COLUMN_POSTER_PATH,movieData.posterPath);
         }
-    }
+    } // Save needed data for resume
     private void initViews(){
         pb = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mMainRecyclerView = (RecyclerView)findViewById(R.id.rv_thumbnails);
         mMainRecyclerView.setHasFixedSize(false);
         RecyclerView.LayoutManager layoutManager;
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            layoutManager = new GridLayoutManager(getApplicationContext(),5);
-        else
+        if(CommonData.isPortrait)
             layoutManager = new GridLayoutManager(getApplicationContext(),3);
+        else
+            layoutManager = new GridLayoutManager(getApplicationContext(),5);
         mMainRecyclerView.setLayoutManager(layoutManager);
 
         mMainRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this,
@@ -156,6 +172,14 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
 
     public class TNClickHandler implements RecyclerItemClickListener.OnItemClickListener {
         public void onItemClick(View v,int position) {
+
+            // Save the view bitmap into CommonData temp
+            ImageView v1 = (ImageView) v.findViewById(R.id.tn_img);
+            BitmapDrawable drawable = (BitmapDrawable) v1.getDrawable();
+            Bitmap bitmap = drawable.getBitmap();
+            CommonData.setTempBitmap(bitmap);
+
+            //Create and fire intent
             Context context = MainActivity.this;
             Class destinationClass = ShowMovieDetailsActivity.class;
             Intent intent = new Intent(context,destinationClass);
@@ -198,11 +222,6 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // Set favouritesCursor
         favouritesCursor = data;
-        if (selectIndex == 2) { // Viewing favourites
-            // Redo MovieData
-            movieData.populateMovieDataFromDB(favouritesCursor);
-            populateViews();
-        }
     }
 
     /**
@@ -220,17 +239,13 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
     }
     private void populateViews() {
 
-        msgView.setText(R.string.fetching);
-        if (!dataLoaded)
-            return;
-
         TNUnits.clear();
 
         for(int i=0;i<movieData.movieId.length;i++){
 
             TNUnit tnUnit = new TNUnit();
             tnUnit.setTN_Text(movieData.movieId[i]);
-            tnUnit.setTN_image_url(THUMBNAIL_URL_BASE +  movieData.posterPath[i]);
+            tnUnit.setTN_image_url(THUMBNAIL_URL_BASE + movieData.posterPath[i]);
             TNUnits.add(tnUnit);
         }
         if (adapter != null)
@@ -259,41 +274,50 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (loadinginProcess)
-            return true;
         int id = item.getItemId();
         if (id == R.id.by_popular) {
-            if (selectIndex == 0)
-                return true;
             selectIndex = 0;
+            adapter.setSelectedIndex(selectIndex);
             loadData();
         }
         else if (id == R.id.by_top_rated){
-            if (selectIndex == 1)
-                return true;
             selectIndex = 1;
+            adapter.setSelectedIndex(selectIndex);
             loadData();
         }
         else { // Favourites
-            if (selectIndex == 2)
-                return true;
-
-            if ((favouritesCursor == null) || (favouritesCursor.getCount() == 0)) {
-                msgView.setText("No favourites to display!");
-                return true;
-            }
-            if (!movieData.populateMovieDataFromDB(favouritesCursor)) {
-                msgView.setText("Error in loading data from cursor!");
-                return true;
-            }
-            selectIndex = 2;
-            populateViews();
+            adapter.setSelectedIndex(selectIndex);
+            loadLocalData();
         }
         return true;
     }
+    private void loadLocalData() {
+        pb.setVisibility(View.VISIBLE);
+        if ((favouritesCursor == null) || (favouritesCursor.getCount() == 0)) {
+            msgView.setText("No favourites to display!");
+            return;
+        }
 
+        if (!movieData.populateMovieDataFromDB(favouritesCursor)) {
+            msgView.setText("Error in loading data from cursor!");
+            pb.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+          pb.setVisibility(View.INVISIBLE);
+
+        populateViews();
+    }
 
     private void loadData() {
+
+        if (!CommonData.isOnline()) {
+            selectIndex = 2;
+            adapter.setSelectedIndex(selectIndex);
+            msgView.setText(R.string.fetch_failed);
+            loadLocalData();
+            return;
+        }
         msgView.setText(R.string.fetching);
         String[] params = new String[2];
         params[0] = sortBy[selectIndex];
@@ -344,10 +368,13 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
         protected void onPostExecute(String[] retVals) {
             pb.setVisibility(View.INVISIBLE);
             dataLoaded = false;
-            if (retVals == null) {
+            if (retVals == null){
+                CommonData.setOnline(false);
                 msgView.setText(R.string.fetch_failed);
                 return;
             }
+            else
+                CommonData.setOnline(true);
             dataLoaded = movieData.populateMovieData(retVals[0]);
             if (!dataLoaded) {
                 msgView.setText(R.string.json_failed);

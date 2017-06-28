@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +18,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -24,7 +29,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.tmdbmovies.data.CommonData;
 import com.example.android.tmdbmovies.db.MovieContract;
@@ -100,7 +107,9 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
     private Button bMarkButton;
     private ImageView ivStarView;
 
-    Intent myIntent;
+    public ShareActionProvider shareActionProvider;
+
+    Intent myIntent; // Passed on to me
     public Context showContext;
 
     int computedY = 0; // For s_trailers and s_reviews
@@ -114,9 +123,8 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_show_movie_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        CommonData.setCommonData(this);
         // String definitions
-        POSTER_URL_BASE = getResources().getString(R.string.image_url_base) + "w" + CommonData.posterSelect + "/";
+        POSTER_URL_BASE = getResources().getString(R.string.image_url_base) + "w" + CommonData.posterSelect;
         DB_URL_BASE = getResources().getString(R.string.db_url_base);
         YOUTUBE_URL = getResources().getString(R.string.youtube_url_base);
         apiKey = getResources().getString(R.string.api_key);
@@ -189,6 +197,7 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
 
         initViews();
         showDetails();
+
         favourite = checkFavouriteEntry(movieId);
         updateImages();
     }
@@ -212,12 +221,18 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
         }
     }
     public void setFavouriteField() {
-        bMarkButton.setText("WORKING...");
+        if (!CommonData.isOnline()) {
+            Toast.makeText(this,getResources().getString(R.string.offline_na),Toast.LENGTH_LONG).show();
+            return;
+        }
         if (favourite) {
             Uri uri = MovieContract.MovieEntry.CONTENT_URI.buildUpon().appendPath(movieId).build();
             int numDeleted = getContentResolver().delete(uri,null,null);
-            if (numDeleted > 0)
+            if (numDeleted > 0) {
                 favourite = false;
+                // Delete the poster
+                CommonData.deletePoster(movieId);
+            }
             else {
                 reportError("Delete Favourite entry failed");
             }
@@ -234,8 +249,10 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
 
             try {
                 getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+                BitmapDrawable drawable = (BitmapDrawable)((ImageView) findViewById(R.id.s_poster)).getDrawable();
+                Bitmap bitmap = drawable.getBitmap();
+                CommonData.savePoster(movieId,bitmap);
                 favourite = true;
-
             }catch (Exception e1) {
                 reportError(e1.getMessage());
             }
@@ -353,9 +370,17 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.s_synopsis)).setText(getResources().getString(R.string.prefix_synopsis) +  movieSynopsis);
         ((TextView) findViewById(R.id.s_rating)).setText(getResources().getString(R.string.prefix_rate) + movieRating);
         ((TextView) findViewById(R.id.s_release_date)).setText(getResources().getString(R.string.prefix_release_date) + movieDate);
-        Picasso.with(this).load(POSTER_URL_BASE +  moviePoster)
-                .into((ImageView) findViewById(R.id.s_poster));
+        if (CommonData.isOnline())
+            Picasso.with(this).load(POSTER_URL_BASE +  moviePoster)
+                    .into((ImageView) findViewById(R.id.s_poster));
+        else
+            ((ImageView) findViewById(R.id.s_poster)).setImageBitmap(CommonData.getPosterAsBitmap(movieId));
 
+        if (!CommonData.isOnline()) {
+            mTrailerHeader.setText(R.string.offline);
+            mReviewHeader.setText(R.string.offline);
+            return;
+        }
         if (!loadedTrailers) {
 
             loadTrailers();
@@ -595,6 +620,7 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
             }
             loadedTrailers = true;
             Log.d("VIDEO DATA","POPULATED DATA");
+
             return true;
 
         }catch (Exception e) {
@@ -630,5 +656,34 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
 
         listView.setLayoutParams(params);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.share_trailer, menu);
+        shareActionProvider = new ShareActionProvider(this);
+        shareActionProvider
+                .setShareHistoryFileName(ShareActionProvider.DEFAULT_SHARE_HISTORY_FILE_NAME);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.share_video) { // Only one
+            if (mTrailerNames.size() == 0)
+                return false;
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/*");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mTrailerUrls.get(0));
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, mTrailerNames.get(0));
+            startActivity(Intent.createChooser(shareIntent, "Share using"));
+        }
+        else {
+            Intent homeInt = new Intent(this, MainActivity.class);
+            startActivity(homeInt);
+            return true;
+        }
+        return true;
     }
 }

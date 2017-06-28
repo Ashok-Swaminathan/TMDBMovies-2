@@ -3,6 +3,7 @@
     android:id="@+id/main_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     android:orientation="vertical">
 
     <TextView
@@ -14,10 +15,9 @@
         android:text="@string/fetching"
         android:textSize="15dp"
         android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
+        android:textColor="@color/colorWhite" />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_thumbnails"
-        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/msg_view" />

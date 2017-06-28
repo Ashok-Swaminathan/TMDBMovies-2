@@ -4,10 +4,10 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 
 /**
  * Created by Ashok on 6/22/2017.
@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDbHelper movieDbHelper;
+
 
     public static UriMatcher buildUriMatcher() {
         /** 100 for all, 101 for single entry by movieId

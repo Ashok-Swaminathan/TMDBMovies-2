@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ShowMovieDetailsActivity">
+    <item android:id="@+id/share_video"
+        android:title="@string/share_trailer"
+        android:icon="@android:drawable/ic_menu_share"
+        android:enabled="true"
+        android:orderInCategory="1"
+        android:titleCondensed="@string/share_trailer"
+        app:showAsAction="always" />
+
+</menu>

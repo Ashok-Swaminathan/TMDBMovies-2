@@ -7,7 +7,7 @@
     <string name="fetch_success_popular">Welcome to TMDB world of movies (POPULAR)</string>
     <string name="fetch_success_top_rated">Welcome to TMDB world of movies (TOP RATED)</string>
     <string name="fetch_success_favourites">Welcome to TMDB world of movies (FAVOURITES)</string>
-    <string name="fetch_failed">Fetching Data failed.</string>
+    <string name="fetch_failed">No connectivity, you may view favoutites offline</string>
     <string name="json_failed">Updating received data failed.</string>
     <string name="fetching">Fetching data for you, please wait...</string>
     <string name="select_popular">Popular</string>
@@ -21,11 +21,15 @@
     <string name="prefix_release_date">Release Date: </string>
     <string name="no_trailers">No Trailers available</string>
     <string name="no_reviews">No Reviews available</string>
+    <string name="offline">Offline : No data</string>
+    <string name="offline_na">Offline : Not Applicable</string>
+    <string name="only_favourites">Offline : Showing stored favourites</string>
     <string name="mark_favourite">MARK AS FAVOURITE</string>
     <string name="unmark_favourite">UNMARK FAVOURITE</string>
     <string name="db_url_base">https://api.themoviedb.org/3/movie/</string>
     <string name="thumbnail_url_base">https://image.tmdb.org/t/p/</string>
     <string name="image_url_base">https://image.tmdb.org/t/p/</string>
     <string name="youtube_url_base">https://youtube.com/watch?v=</string>
+    <string name="share_trailer">Share Trailer</string>
 
 </resources>
