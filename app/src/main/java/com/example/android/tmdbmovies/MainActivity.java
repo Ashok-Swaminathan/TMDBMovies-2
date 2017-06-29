@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.tmdbmovies.data.CommonData;
 import com.example.android.tmdbmovies.db.MovieContract;
@@ -122,7 +123,6 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
             msgView.setText("Exception ->" + e.getMessage());
         }
         initViews();
-
         if ((savedInstanceState != null) && (savedInstanceState.get(SELECT_INDEX_KEY) != null)) {
             selectIndex = Integer.parseInt(savedInstanceState.getString(SELECT_INDEX_KEY));
             movieData.movieId = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_ID);
@@ -136,8 +136,25 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
             setMsgText();
         }
         else
-             loadData();
+            loadData();
 
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        if ((savedInstanceState != null) && (savedInstanceState.get(SELECT_INDEX_KEY) != null)) {
+            selectIndex = Integer.parseInt(savedInstanceState.getString(SELECT_INDEX_KEY));
+            movieData.movieId = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_ID);
+            movieData.movieTitle = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_TITLE);
+            movieData.releaseDate = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
+            movieData.posterPath = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+            movieData.synopsis = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_SYNOPSIS);
+            movieData.rating = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_RATING);
+            dataLoaded = true;
+            populateViews();
+            setMsgText();
+        }
+        else
+            loadData();
     }
     @Override
     public void onSaveInstanceState (Bundle outState) {
@@ -286,6 +303,7 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
             loadData();
         }
         else { // Favourites
+            selectIndex = 2;
             adapter.setSelectedIndex(selectIndex);
             loadLocalData();
         }
@@ -311,6 +329,7 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
 
     private void loadData() {
 
+        Toast.makeText(this,"loadData called with selectIndex = " + selectIndex,Toast.LENGTH_LONG).show();
         if (!CommonData.isOnline()) {
             selectIndex = 2;
             adapter.setSelectedIndex(selectIndex);

@@ -3,7 +3,7 @@
     <string name="app_name">TMDB Movies 2</string>
     <string name="title_movie_details">Movie Details</string>
     <string name="string_api_key">api_key</string>
-    <string name="api_key">Please insert actual api_key here</string>
+    <string name="api_key">a47530fe57274df7dda322ed1d777007</string>
     <string name="fetch_success_popular">Welcome to TMDB world of movies (POPULAR)</string>
     <string name="fetch_success_top_rated">Welcome to TMDB world of movies (TOP RATED)</string>
     <string name="fetch_success_favourites">Welcome to TMDB world of movies (FAVOURITES)</string>

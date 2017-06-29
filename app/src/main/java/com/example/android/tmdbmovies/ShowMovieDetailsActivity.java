@@ -453,9 +453,9 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
         }
     }
     public void populateReviewsViews() {
-        if (mReviewUrls.size() == 0) {
+        if (mReviewAuthors.size() == 0) {
             mReviewHeader.setText("No reviews available");
-            mLVTrailers.setVisibility(View.INVISIBLE);
+            mLVReviews.setVisibility(View.INVISIBLE);
             return;
         }
         setListViewHeight(mLVReviews);
@@ -563,7 +563,7 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
         }
     }
     public void populateTrailerViews() {
-        if (mTrailerUrls.size() == 0) {
+        if (mTrailerNames.size() == 0) {
             mTrailerHeader.setText("No trailers available");
             mLVTrailers.setVisibility(View.INVISIBLE);
             return;
@@ -669,21 +669,28 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.share_video) { // Only one
-            if (mTrailerNames.size() == 0)
+        switch(item.getItemId()) {
+            case R.id.share_video : {
+                if (mTrailerNames.size() == 0)
+                    return false;
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/*");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, mTrailerUrls.get(0));
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, mTrailerNames.get(0));
+                startActivity(Intent.createChooser(shareIntent, "Share using"));
+                break;
+            }
+            case android.R.id.home: {
+                Intent homeIntent = new Intent(this, MainActivity.class);
+                homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(homeIntent);
+                break;
+            }
+            default : {
                 return false;
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/*");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mTrailerUrls.get(0));
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, mTrailerNames.get(0));
-            startActivity(Intent.createChooser(shareIntent, "Share using"));
+            }
         }
-        else {
-            Intent homeInt = new Intent(this, MainActivity.class);
-            startActivity(homeInt);
-            return true;
-        }
-        return true;
+        return (super.onOptionsItemSelected(item));
+
     }
 }
