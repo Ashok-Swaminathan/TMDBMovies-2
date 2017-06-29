@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
     }
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         if ((savedInstanceState != null) && (savedInstanceState.get(SELECT_INDEX_KEY) != null)) {
             selectIndex = Integer.parseInt(savedInstanceState.getString(SELECT_INDEX_KEY));
             movieData.movieId = savedInstanceState.getStringArray(MovieContract.MovieEntry.COLUMN_ID);
@@ -328,8 +329,6 @@ public class MainActivity extends AppCompatActivity  implements LoaderManager.Lo
     }
 
     private void loadData() {
-
-        Toast.makeText(this,"loadData called with selectIndex = " + selectIndex,Toast.LENGTH_LONG).show();
         if (!CommonData.isOnline()) {
             selectIndex = 2;
             adapter.setSelectedIndex(selectIndex);

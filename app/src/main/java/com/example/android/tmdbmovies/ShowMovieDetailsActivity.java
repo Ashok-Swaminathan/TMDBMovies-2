@@ -682,7 +682,7 @@ public class ShowMovieDetailsActivity extends AppCompatActivity {
             }
             case android.R.id.home: {
                 Intent homeIntent = new Intent(this, MainActivity.class);
-                homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(homeIntent);
                 break;
             }
